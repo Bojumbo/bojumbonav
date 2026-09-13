@@ -2,18 +2,16 @@ version: "3.9"
 
 services:
   trucknav:
-    image: trucknav:latest
     build:
       context: .
       dockerfile: Dockerfile
     container_name: trucknav
     restart: unless-stopped
     ports:
-      - "3000:80"   # Change 3000 to any free host port you prefer
+      - "3000:80"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
-      interval: 30s
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:80/health || exit 1"]
+      interval: 15s
       timeout: 5s
       retries: 3
-    labels:
-      - "com.portainer.accesscontrol.teams=trucknav"
+      start_period: 5s

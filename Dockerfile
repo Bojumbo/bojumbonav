@@ -34,7 +34,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Expose HTTP port
 EXPOSE 80
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD wget -qO- http://localhost/health || exit 1
+# Healthcheck using explicit IPv4 127.0.0.1
+HEALTHCHECK --interval=15s --timeout=5s --start-period=5s --retries=3 CMD wget -q --spider http://127.0.0.1:80/health || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
