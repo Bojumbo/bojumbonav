@@ -8,7 +8,7 @@ WORKDIR /app
 # Copy dependency files first for better layer caching
 COPY package.json package-lock.json ./
 
-# Install all dependencies (including devDependencies needed for build)
+# Install all dependencies
 RUN npm ci
 
 # Copy full source
@@ -18,7 +18,7 @@ COPY . .
 RUN npm run build
 
 # -----------------------------------------------------------------------------
-# Stage 2: Serve — Nginx Alpine (minimal attack surface)
+# Stage 2: Serve — Nginx Alpine
 # -----------------------------------------------------------------------------
 FROM nginx:stable-alpine AS production
 
@@ -31,11 +31,10 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy custom nginx config for SPA routing
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose HTTP port (Cloudflare tunnel > this port)
+# Expose HTTP port
 EXPOSE 80
 
-# Healthcheck: nginx responds with 200 on root
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 `
-  CMD wget -qO- http://localhost/ || exit 1
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD wget -qO- http://localhost/health || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
